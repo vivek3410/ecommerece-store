@@ -1,0 +1,48 @@
+"use client";
+import Button from '@/components/ui/button';
+import Currency from '@/components/ui/currency';
+import useCart from '@/hooks/use-cart';
+import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
+import React, { useEffect } from 'react';
+import toast from 'react-hot-toast';
+
+export default function Summary() {
+    const items = useCart((state) => state.items);
+    const removeAll = useCart((state) => state.removeAll);
+    const searchparams = useSearchParams();
+
+    useEffect(() => {
+        if (searchparams.get('success')) {
+            toast.success('Order placed successfully');
+            removeAll();
+        }
+
+        if (searchparams.get('canceled')) {
+            toast.error('Order canceled');
+        }
+    }, [searchparams, removeAll])
+
+    const totalPrice = items.reduce((total, item) => {
+        return total + Number(item.price);
+    }, 0)
+
+    const onCheckout = async () => {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/checkout`, {
+            productIds: items.map((item) => item.id),
+        });
+        window.location = res.data.url;
+    }
+    return (
+        <div className='mt-16 rounded-lg px-4 py-6 sm:p-6 bg-gray-50 lg:col-span-5 lg:mt-0 lg:p-8'>
+            <h2 className='text-lg font-medium text-gray-900'>Order summary</h2>
+            <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                    <div className='text-base font-medium  text-gray-900'>Order Total</div>
+                    <Currency value={totalPrice} />
+                </div>
+            </div>
+            <Button disabled={items.length === 0} onClick={onCheckout} className='w-full mt-6'>Check out</Button>
+        </div>
+    );
+}
