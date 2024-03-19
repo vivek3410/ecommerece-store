@@ -12,7 +12,7 @@ interface Props {
 
 
 const HomePage: React.FC<Props> = async (props) => {
-    const billboard = await getBillboard("72c19eec-2b50-4188-bbf1-cdc674bd4b53");
+    const billboard = await getBillboard("e02132f5-37d3-4ad2-b578-cff9cbb877d5");
     const products = await getProducts({ isFeatured: true });
     // console.log(products);
 
